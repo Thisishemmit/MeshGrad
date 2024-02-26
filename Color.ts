@@ -1,8 +1,13 @@
 interface ColorI {
-    rgba: { r: number; g: number; b: number; a: number };
+    rgba: RGBA;
 }
 
-type RGBA = { r: number; g: number; b: number; a: number };
+type RGBA = {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+};
 
 class Color implements ColorI {
     public rgba: RGBA;
@@ -83,7 +88,7 @@ class Color implements ColorI {
         };
     }
 
-    private HSLToRGB(color: string) : Omit<RGBA, "a"> {
+    private HSLToRGB(color: string): Omit<RGBA, "a"> {
         const hsl = color.substring(4, color.length - 1).split(",");
         const h = parseInt(hsl[0]) / 360;
         const s = parseInt(hsl[1]) / 100;
@@ -213,7 +218,9 @@ class Color implements ColorI {
 
     private CMYKAToRGBA(color: string): RGBA {
         const cmyka = color.substring(6, color.length - 1).split(",");
-        const rgb = this.CMYKToRGB(`cmyk(${cmyka[0]},${cmyka[1]},${cmyka[2]},${cmyka[3]})`);
+        const rgb = this.CMYKToRGB(
+            `cmyk(${cmyka[0]},${cmyka[1]},${cmyka[2]},${cmyka[3]})`
+        );
         return { ...rgb, a: parseFloat(cmyka[4]) };
     }
 

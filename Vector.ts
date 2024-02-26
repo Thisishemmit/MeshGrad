@@ -2,6 +2,26 @@ interface VectorI {
     x: number;
     y: number;
     z: number;
+
+    add(v: Vector): Vector;
+    subtract(v: Vector): Vector;
+    multiply(v: Vector): Vector;
+    divide(v: Vector): Vector;
+    scale(s: number): Vector;
+    dot(v: Vector): number;
+    cross(v: Vector): Vector;
+    magnitude(): number;
+    normalize(): Vector;
+    distance(v: Vector): number;
+    angle(v: Vector): number;
+    equals(v: Vector): boolean;
+    clone(): Vector;
+    set(x: number, y: number, z: number): Vector;
+    setX(x: number): Vector;
+    setY(y: number): Vector;
+    setZ(z: number): Vector;
+    toArray(): number[];
+    toString(): string;
 }
 
 class Vector implements VectorI {
