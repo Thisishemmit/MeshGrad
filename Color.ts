@@ -1,8 +1,8 @@
-interface ColorI {
+export interface ColorI {
     rgba: RGBA;
 }
 
-type RGBA = {
+export type RGBA = {
     r: number;
     g: number;
     b: number;
@@ -176,9 +176,9 @@ class Color implements ColorI {
                 break;
         }
         return {
-            r: Math.round(r * 255),
-            g: Math.round(g * 255),
-            b: Math.round(b * 255),
+            r: Math.round(r! * 255),
+            g: Math.round(g! * 255),
+            b: Math.round(b! * 255),
         };
     }
 
@@ -288,3 +288,6 @@ class Color implements ColorI {
         return { ...rgb, a: parseFloat(lcha[3]) };
     }
 }
+
+export default Color;
+

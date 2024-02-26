@@ -1,4 +1,4 @@
-interface VectorI {
+export interface VectorI {
     x: number;
     y: number;
     z: number;
@@ -24,7 +24,7 @@ interface VectorI {
     toString(): string;
 }
 
-class Vector implements VectorI {
+export default class Vector implements VectorI {
     public x: number;
     public y: number;
     public z: number;

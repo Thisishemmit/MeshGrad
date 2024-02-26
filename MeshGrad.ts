@@ -1,4 +1,4 @@
-interface MeshGradContexts {
+export interface MeshGradContexts {
     conatainer: HTMLDivElement;
     canvas: HTMLCanvasElement;
     gl: CanvasRenderingContext2D | WebGLRenderingContext | WebGL2RenderingContext | null;
@@ -17,8 +17,9 @@ class MeshGrad {
         if (this.contexts.conatainer.querySelector('canvas')) {
             return
         }
-
         this.contexts.gl = this.contexts.canvas.getContext('2d')
+        console.log("hello from MeshGrad");
+
         this.contexts.conatainer.appendChild(this.contexts.canvas)
         this.setupStyles()
     }
@@ -37,3 +38,5 @@ class MeshGrad {
         return this.contexts.canvas
     }
 }
+
+export default MeshGrad;
