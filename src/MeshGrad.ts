@@ -13,6 +13,9 @@ class MeshGrad {
         }
         this.init();
     }
+    public getContexts(): MeshGradContexts {
+        return this.contexts
+    }
     private init(): void {
         if (this.contexts.conatainer.querySelector('canvas')) {
             return
@@ -29,9 +32,9 @@ class MeshGrad {
         this.contexts.canvas.style.position = 'absolute'
         this.contexts.canvas.style.top = '0'
         this.contexts.canvas.style.left = '0'
-        this.contexts.canvas.style.width = '100%'
-        this.contexts.canvas.style.height = '100%'
-        this.contexts.canvas.style.zIndex = '-1'
+        this.contexts.canvas.width = this.contexts.conatainer.clientWidth
+        this.contexts.canvas.height = this.contexts.conatainer.clientHeight
+       // this.contexts.canvas.style.zIndex = '-1'
     }
 
     public getCanvas(): HTMLCanvasElement {

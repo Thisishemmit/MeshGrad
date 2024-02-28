@@ -1,130 +1,138 @@
-export interface RendererI {
-    setContext(context: CanvasRenderingContext2D): void;
-    getContext(): CanvasRenderingContext2D;
-    setLineWidth(width: number): void;
-    setStrokeColor(color: string): void;
-    setFillColor(color: string): void;
-    setBackColor(color: string | "transparent"): void;
-    clear(): void;
-    line(x1: number, y1: number, x2: number, y2: number): void;
-    circle(x: number, y: number, radius: number): void;
-    rect(x: number, y: number, width: number, height: number): void;
-    text(x: number, y: number, text: string): void;
-    point(x: number, y: number): void;
-    eclipse(x: number, y: number, radiusX: number, radiusY: number): void;
-    arrow(x1: number, y1: number, x2: number, y2: number): void;
-    getLineWidth(): number;
-    getStrokeColor(): string;
-    getFillColor(): string;
-    getBackColor(): string;
+interface RendererI {
+    background(color: string): void;
 }
 
 export default class Renderer implements RendererI {
     private context: CanvasRenderingContext2D;
-    private lineWidth: number = 1;
-    private strokeColor: string = 'black';
-    private fillColor: string = 'black';
-    private backColor: string = 'white';
+    private _lineWidth: number = 1;
+    private _fillColor: string = 'black';
+    private _strokeColor: string = 'black';
     constructor(context: CanvasRenderingContext2D) {
         this.context = context;
     }
-
-    setContext(context: CanvasRenderingContext2D): void {
-        this.context = context;
-    }
-
-    getContext(): CanvasRenderingContext2D {
-        return this.context;
-    }
-
-    setLineWidth(width: number): void {
-        this.lineWidth = width;
-        this.context.lineWidth = width;
-    }
-
-    setStrokeColor(color: string): void {
-        this.strokeColor = color;
-        this.context.strokeStyle = color;
-    }
-
-    setFillColor(color: string): void {
-        this.fillColor = color;
+    background(color: string): void {
         this.context.fillStyle = color;
+        this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     }
 
-    setBackColor(color: string | "transparent"): void {
-        if (color === "transparent") {
-            return;
-        } else {
-            this.backColor = color;
-            this.context.fillStyle = color;
-            this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-        }
+    opacity(alpha: number): void {
+        this.context.globalAlpha = alpha;
     }
 
     clear(): void {
         this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     }
 
-    line(x1: number, y1: number, x2: number, y2: number): void {
-        this.context.beginPath();
-        this.context.moveTo(x1, y1);
-        this.context.lineTo(x2, y2);
-        this.context.stroke();
+    point(x: number, y: number, size: number, color?: string): void {
+        if (color) {
+            this.context.fillStyle = color;
+        }
+        this.context.fillRect(x, y, size, size);
     }
 
-    circle(x: number, y: number, radius: number): void {
-        this.context.beginPath();
-        this.context.arc(x, y, radius, 0, Math.PI * 2);
-        this.context.stroke();
+    rect(x: number, y: number, width: number, height: number, color?: string): void {
+        if (color) {
+            this.context.fillStyle = color;
+        }
+        this.context.fillRect(x, y, width, height);
     }
 
-    rect(x: number, y: number, width: number, height: number): void {
-        this.context.beginPath();
-        this.context.rect(x, y, width, height);
-        this.context.stroke();
+
+    fill(r: number | string | number[], g: number | null, b: number | null, a: number | null): void {
+        if (typeof r === 'number' && g && b && a) {
+            this._fillColor = `rgba(${r},${g},${b},${a})`;
+            this.context.fillStyle = this._fillColor;
+        } else if (typeof r === 'number' && !g ) {
+            this._fillColor = `rgba(${r},${r},${r},${1})`;
+            this.context.fillStyle = this._fillColor;
+        } else if (typeof r === 'number' && g && b && !a) {
+            this._fillColor = `rgba(${r},${g},${b},${1})`;
+            this.context.fillStyle = this._fillColor;
+        } else if (typeof r === 'number' && g && !b) {
+            this._fillColor = `rgba(${r},${r},${r},${g})`;
+            this.context.fillStyle = this._fillColor;
+        }
+
+        if (typeof r === 'string') {
+            this._fillColor = r;
+            this.context.fillStyle = this._fillColor;
+        }
+
+        if (Array.isArray(r)) {
+            if (r.length === 3) {
+                this._fillColor = `rgba(${r[0]},${r[1]},${r[2]},${1})`;
+                this.context.fillStyle = this._fillColor;
+            } else if (r.length === 4) {
+                this._fillColor = `rgba(${r[0]},${r[1]},${r[2]},${r[3]})`;
+                this.context.fillStyle = this._fillColor;
+            } else if (r.length === 1) {
+                this._fillColor = `rgba(${r[0]},${r[0]},${r[0]},${1})`;
+                this.context.fillStyle = this._fillColor;
+            } else if (r.length === 2) {
+                this._fillColor = `rgba(${r[0]},${r[0]},${r[0]},${r[1]})`;
+                this.context.fillStyle = this._fillColor;
+            }
+        }
     }
 
-    text(x: number, y: number, text: string): void {
-        this.context.fillText(text, x, y);
+    sFill(r: number, g: number, b: number, a: number): void {
+        this._fillColor = `rgba(${r},${g},${b},${a})`;
+        this.context.fillStyle = this._fillColor;
     }
 
-    point(x: number, y: number): void {
-        this.context.fillRect(x, y, 1, 1);
+    sStroke(r: number, g: number, b: number, a: number): void {
+        this._strokeColor = `rgba(${r},${g},${b},${a})`;
+        this.context.strokeStyle = this._strokeColor;
     }
 
-    eclipse(x: number, y: number, radiusX: number, radiusY: number): void {
-        this.context.beginPath();
-        this.context.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
-        this.context.stroke();
+    stroke(r: number | string | number[], g: number | null, b: number | null, a: number | null): void {
+        if (typeof r === 'number' && g && b && a) {
+            this._strokeColor = `rgba(${r},${g},${b},${a})`;
+            this.context.strokeStyle = this._strokeColor;
+        } else if (typeof r === 'number' && !g ) {
+            this._strokeColor = `rgba(${r},${r},${r},${1})`;
+            this.context.strokeStyle = this._strokeColor;
+        } else if (typeof r === 'number' && g && b && !a) {
+            this._strokeColor = `rgba(${r},${g},${b},${1})`;
+            this.context.strokeStyle = this._strokeColor;
+        } else if (typeof r === 'number' && g && !b) {
+            this._strokeColor = `rgba(${r},${r},${r},${g})`;
+            this.context.strokeStyle = this._strokeColor;
+        }
+
+        if (typeof r === 'string') {
+            this._strokeColor = r;
+            this.context.strokeStyle = this._strokeColor;
+        }
+
+        if (Array.isArray(r)) {
+            if (r.length === 3) {
+                this._strokeColor = `rgba(${r[0]},${r[1]},${r[2]},${1})`;
+                this.context.strokeStyle = this._strokeColor;
+            } else if (r.length === 4) {
+                this._strokeColor = `rgba(${r[0]},${r[1]},${r[2]},${r[3]})`;
+                this.context.strokeStyle = this._strokeColor;
+            } else if (r.length === 1) {
+                this._strokeColor = `rgba(${r[0]},${r[0]},${r[0]},${1})`;
+                this.context.strokeStyle = this._strokeColor;
+            } else if (r.length === 2) {
+                this._strokeColor = `rgba(${r[0]},${r[0]},${r[0]},${r[1]})`;
+                this.context.strokeStyle = this._strokeColor;
+            }
+        }
     }
 
-    arrow(x1: number, y1: number, x2: number, y2: number): void {
-        this.context.beginPath();
-        this.context.moveTo(x1, y1);
-        this.context.lineTo(x2, y2);
-        this.context.stroke();
-        this.context.beginPath();
-        this.context.moveTo(x2, y2);
-        this.context.lineTo(x2 - 10, y2 - 10);
-        this.context.lineTo(x2 - 10, y2 + 10);
-        this.context.lineTo(x2, y2);
-        this.context.fill();
+    lineWidth(width: number): void {
+        this._lineWidth = width;
+        this.context.lineWidth = width;
     }
 
-    getLineWidth(): number {
-        return this.lineWidth;
+    noFill(): void {
+        this.context.fillStyle = 'transparent';
     }
 
-    getStrokeColor(): string {
-        return this.strokeColor;
-    }
-
-    getFillColor(): string {
-        return this.fillColor;
-    }
-
-    getBackColor(): string {
-        return this.backColor;
+    noStroke(): void {
+        this.context.strokeStyle = 'transparent';
+        this.context.lineWidth = 0;
     }
 }
