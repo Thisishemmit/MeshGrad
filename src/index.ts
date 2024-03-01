@@ -1,13 +1,27 @@
-import MeshGrad from "./MeshGrad";
-import Renderer from "./Renderer";
+import Renederer from "./Renderer";
 
-const meshGrad = new MeshGrad(document.querySelector('.mesh-grad')!);
-const g = new Renderer(meshGrad.getContexts().gl as CanvasRenderingContext2D);
+let gl: CanvasRenderingContext2D;
+//empty div with class .mesh-grad
+const div = document.querySelector('.mesh-grad')!
+console.log(12);
 
-function draw() {
-    g.clear();
-    g.rect(0, 0, 100, 100, 'rgba(0, 255, 0, 0.2)');
-    requestAnimationFrame(draw);
+const canvas = document.createElement('canvas');
+div.appendChild(canvas);
+canvas.width = div.clientWidth;
+canvas.height = div.clientHeight;
+gl = canvas.getContext('2d')!
+
+const lerp = (start: number, end: number, t: number) => {
+    return start * (1 - t) + end * t;
+}
+
+const r = new Renederer(gl);
+
+r.resizeCanvasToDisplaySize();
+const draw = () => {
+    r.fill(255, 0, 0, 1);
+    r.noStroke();
+    r.rect(0, 0, 100, 100);
 }
 
 draw();

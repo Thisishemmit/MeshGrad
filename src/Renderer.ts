@@ -1,138 +1,142 @@
-interface RendererI {
-    background(color: string): void;
-}
 
-export default class Renderer implements RendererI {
-    private context: CanvasRenderingContext2D;
-    private _lineWidth: number = 1;
-    private _fillColor: string = 'black';
-    private _strokeColor: string = 'black';
-    constructor(context: CanvasRenderingContext2D) {
-        this.context = context;
-    }
-    background(color: string): void {
-        this.context.fillStyle = color;
-        this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
+export default class Renederer {
+    private gl: CanvasRenderingContext2D;
+    private fillColor: string = "black";
+    private strokeColor: string = "transparent";
+
+    constructor(gl: CanvasRenderingContext2D) {
+        this.gl = gl;
     }
 
-    opacity(alpha: number): void {
-        this.context.globalAlpha = alpha;
-    }
-
-    clear(): void {
-        this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
-    }
-
-    point(x: number, y: number, size: number, color?: string): void {
-        if (color) {
-            this.context.fillStyle = color;
-        }
-        this.context.fillRect(x, y, size, size);
-    }
-
-    rect(x: number, y: number, width: number, height: number, color?: string): void {
-        if (color) {
-            this.context.fillStyle = color;
-        }
-        this.context.fillRect(x, y, width, height);
-    }
-
-
-    fill(r: number | string | number[], g: number | null, b: number | null, a: number | null): void {
-        if (typeof r === 'number' && g && b && a) {
-            this._fillColor = `rgba(${r},${g},${b},${a})`;
-            this.context.fillStyle = this._fillColor;
-        } else if (typeof r === 'number' && !g ) {
-            this._fillColor = `rgba(${r},${r},${r},${1})`;
-            this.context.fillStyle = this._fillColor;
-        } else if (typeof r === 'number' && g && b && !a) {
-            this._fillColor = `rgba(${r},${g},${b},${1})`;
-            this.context.fillStyle = this._fillColor;
-        } else if (typeof r === 'number' && g && !b) {
-            this._fillColor = `rgba(${r},${r},${r},${g})`;
-            this.context.fillStyle = this._fillColor;
-        }
-
-        if (typeof r === 'string') {
-            this._fillColor = r;
-            this.context.fillStyle = this._fillColor;
-        }
-
-        if (Array.isArray(r)) {
-            if (r.length === 3) {
-                this._fillColor = `rgba(${r[0]},${r[1]},${r[2]},${1})`;
-                this.context.fillStyle = this._fillColor;
-            } else if (r.length === 4) {
-                this._fillColor = `rgba(${r[0]},${r[1]},${r[2]},${r[3]})`;
-                this.context.fillStyle = this._fillColor;
-            } else if (r.length === 1) {
-                this._fillColor = `rgba(${r[0]},${r[0]},${r[0]},${1})`;
-                this.context.fillStyle = this._fillColor;
-            } else if (r.length === 2) {
-                this._fillColor = `rgba(${r[0]},${r[0]},${r[0]},${r[1]})`;
-                this.context.fillStyle = this._fillColor;
-            }
+    public resizeCanvasToDisplaySize(): void {
+        const canvas = this.gl.canvas as HTMLCanvasElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
         }
     }
 
-    sFill(r: number, g: number, b: number, a: number): void {
-        this._fillColor = `rgba(${r},${g},${b},${a})`;
-        this.context.fillStyle = this._fillColor;
+    public clear(): void {
+        this.gl.clearRect(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     }
 
-    sStroke(r: number, g: number, b: number, a: number): void {
-        this._strokeColor = `rgba(${r},${g},${b},${a})`;
-        this.context.strokeStyle = this._strokeColor;
+    public noFill(): void {
+        this.gl.fillStyle = "transparent";
     }
 
-    stroke(r: number | string | number[], g: number | null, b: number | null, a: number | null): void {
-        if (typeof r === 'number' && g && b && a) {
-            this._strokeColor = `rgba(${r},${g},${b},${a})`;
-            this.context.strokeStyle = this._strokeColor;
-        } else if (typeof r === 'number' && !g ) {
-            this._strokeColor = `rgba(${r},${r},${r},${1})`;
-            this.context.strokeStyle = this._strokeColor;
-        } else if (typeof r === 'number' && g && b && !a) {
-            this._strokeColor = `rgba(${r},${g},${b},${1})`;
-            this.context.strokeStyle = this._strokeColor;
-        } else if (typeof r === 'number' && g && !b) {
-            this._strokeColor = `rgba(${r},${r},${r},${g})`;
-            this.context.strokeStyle = this._strokeColor;
-        }
-
-        if (typeof r === 'string') {
-            this._strokeColor = r;
-            this.context.strokeStyle = this._strokeColor;
-        }
-
-        if (Array.isArray(r)) {
-            if (r.length === 3) {
-                this._strokeColor = `rgba(${r[0]},${r[1]},${r[2]},${1})`;
-                this.context.strokeStyle = this._strokeColor;
-            } else if (r.length === 4) {
-                this._strokeColor = `rgba(${r[0]},${r[1]},${r[2]},${r[3]})`;
-                this.context.strokeStyle = this._strokeColor;
-            } else if (r.length === 1) {
-                this._strokeColor = `rgba(${r[0]},${r[0]},${r[0]},${1})`;
-                this.context.strokeStyle = this._strokeColor;
-            } else if (r.length === 2) {
-                this._strokeColor = `rgba(${r[0]},${r[0]},${r[0]},${r[1]})`;
-                this.context.strokeStyle = this._strokeColor;
-            }
+    public fill2(r?: number | number[] | string, g?: number, b?: number, a?: number): void {
+        const colour:string | null = this.getColour(r, g, b, a);
+        if (colour) {
+            this.fillColor = colour;
+            this.gl.fillStyle = colour;
+        } else {
+            this.gl.fillStyle = this.fillColor;
         }
     }
 
-    lineWidth(width: number): void {
-        this._lineWidth = width;
-        this.context.lineWidth = width;
+    fill(r?: number, g?: number, b?: number, a?: number): void {
+        if (r) {
+            this.fillColor = `rgba(${r},${g},${b},${a})`;
+            this.gl.fillStyle = this.fillColor;
+        } else {
+            this.gl.fillStyle = this.fillColor;
+        }
     }
 
-    noFill(): void {
-        this.context.fillStyle = 'transparent';
+    public noStroke(): void {
+        this.gl.strokeStyle = "transparent";
     }
 
-    noStroke(): void {
-        this.context.strokeStyle = 'transparent';
-        this.context.lineWidth = 0;
+    public stroke(r?: number, g?: number, b?: number, a?: number): void {
+        if (r) {
+            this.strokeColor = `rgba(${r},${g},${b},${a})`;
+            this.gl.strokeStyle = this.strokeColor;
+        } else {
+            this.gl.strokeStyle = this.strokeColor;
+        }
+    }
+
+    public stroke2(r?: number | number[] | string, g?: number, b?: number, a?: number): void {
+        const colour:string | null = this.getColour(r, g, b, a);
+        if (colour) {
+            this.strokeColor = colour;
+            this.gl.strokeStyle = colour;
+        } else {
+            this.gl.strokeStyle = this.strokeColor;
+        }
+    }
+
+    public getColour(r?: number | number[] | string, g?: number, b?: number, a?: number): string | null {
+        if (typeof r === "string") {
+            return r;
+        } else if (Array.isArray(r)) {
+            return `rgba(${r[0]},${r[1]},${r[2]},${r[3]})`;
+        } else if (r) {
+            return `rgba(${r},${g},${b},${a})`;
+        }
+        return null;
+    }
+
+    public point(x: number, y: number): void {
+        this.gl.beginPath();
+        this.gl.arc(x, y, 1, 0, Math.PI * 2);
+        this.gl.fill();
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public line(x1: number, y1: number, x2: number, y2: number): void {
+        this.gl.beginPath();
+        this.gl.moveTo(x1, y1);
+        this.gl.lineTo(x2, y2);
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public rect(x: number, y: number, w: number, h: number): void {
+        this.gl.beginPath();
+        this.gl.rect(x, y, w, h);
+        this.gl.fill();
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public ellipse(x: number, y: number, w: number, h: number): void {
+        this.gl.beginPath();
+        this.gl.ellipse(x, y, w, h, 0, 0, Math.PI * 2);
+        this.gl.fill();
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public arc(x: number, y: number, w: number, h: number, start: number, stop: number): void {
+        this.gl.beginPath();
+        this.gl.ellipse(x, y, w, h, 0, start, stop);
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public circle(x: number, y: number, r: number): void {
+        this.gl.beginPath();
+        this.gl.arc(x, y, r, 0, Math.PI * 2);
+        this.gl.fill();
+        this.gl.stroke();
+        this.gl.closePath();
+    }
+
+    public beginShape(): void {
+        this.gl.beginPath();
+    }
+
+    public vertex(x: number, y: number): void {
+        this.gl.lineTo(x, y);
+    }
+
+    public endShape(): void {
+        this.gl.fill();
+        this.gl.stroke();
+        this.gl.closePath();
     }
 }
