@@ -1,22 +1,29 @@
 import { log } from "console";
 
-export default class Renederer {
+export default class Renederer<T extends HTMLElement>{
     private gl: CanvasRenderingContext2D;
     private fillColor: string = "black";
     private strokeColor: string = "transparent";
-
-    constructor(gl: CanvasRenderingContext2D) {
-        this.gl = gl;
+    private dpi: number = 1;
+    constructor(container: T) {
+        const canvas = document.createElement("canvas");
+        container.appendChild(canvas);
+        this.gl = canvas.getContext("2d")!;
+        if (!this.gl) {
+            throw new Error("WebGL not supported");
+        }
+        this.gl.canvas.width = container.clientWidth;
+        this.gl.canvas.height = container.clientHeight;
+        this.pixelDensity(window.devicePixelRatio);
+        this.gl.canvas.style.width = "100%";
+        this.gl.canvas.style.height = "100%";
     }
 
-    public resizeCanvasToDisplaySize(): void {
-        const canvas = this.gl.canvas as HTMLCanvasElement;
-        const width = canvas.parentElement!.clientWidth;
-        const height = canvas.parentElement!.clientHeight;
-        if (canvas.width !== width || canvas.height !== height) {
-            canvas.width = width;
-            canvas.height = height;
-        }
+    public pixelDensity(dpi: number): void {
+        this.dpi = dpi;
+        this.gl.canvas.width = this.gl.canvas.width * this.dpi;
+        this.gl.canvas.height = this.gl.canvas.height * this.dpi;
+        this.gl.scale(this.dpi, this.dpi);
     }
 
     public clear(): void {
@@ -28,7 +35,7 @@ export default class Renederer {
     }
 
     public fill2(r?: number | number[] | string, g?: number, b?: number, a?: number): void {
-        const colour:string | null = this.getColour(r, g, b, a);
+        const colour: string | null = this.getColour(r, g, b, a);
         if (colour) {
             this.fillColor = colour;
             this.gl.fillStyle = colour;
@@ -68,7 +75,7 @@ export default class Renederer {
     }
 
     public stroke2(r?: number | number[] | string, g?: number, b?: number, a?: number): void {
-        const colour:string | null = this.getColour(r, g, b, a);
+        const colour: string | null = this.getColour(r, g, b, a);
         if (colour) {
             this.strokeColor = colour;
             this.gl.strokeStyle = colour;
@@ -169,5 +176,9 @@ export default class Renederer {
         this.gl.fill();
         this.gl.stroke();
         this.gl.closePath();
+    }
+
+    public getCanvas(): HTMLCanvasElement {
+        return this.gl.canvas as HTMLCanvasElement;
     }
 }
